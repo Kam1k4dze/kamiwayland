@@ -105,9 +105,9 @@ registry->on_global = [&](wl::Registry& reg, uint32_t name, std::string_view ifa
 if (auto r = display.roundtrip(); !r) { /* handle */ }
 ```
 
-`try_bind<T>` compares `iface` against `T::interface_name`, caps the version at `T::interface_version`, writes the
-result into `target`, and returns true if the name matched. `bind<T>(name, ver)` is the direct form — returns
-`unique_ptr<T>` without a name check.
+`try_bind<T>` compares `iface` against `T::interface_name`, caps the bound version at the minimum of the
+compositor-advertised and client-maximum versions, writes the result into `target`, and returns true if the name
+matched.
 
 **Event callbacks:**
 
