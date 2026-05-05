@@ -7,7 +7,7 @@ if (NOT DEFINED CMAKE_EXPERIMENTAL_CXX_IMPORT_STD)
     endif ()
 endif ()
 
-project(my_wayland_app LANGUAGES CXX C)
+project(kamiwayland_examples LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
