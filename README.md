@@ -158,32 +158,30 @@ See [examples](examples/)
 static struct wl_compositor *compositor;
 static struct wl_seat *seat;
 
-static void registry_global(void *data,       // void* passed through to every callback — cast it back yourself
+static void registry_global(void *data,          // userdata void* — cast back yourself
                              struct wl_registry *reg,
                              uint32_t name, const char *iface, uint32_t ver)
 {
-    if (strcmp(iface, wl_compositor_interface.name) == 0)  // string compare; some code hardcodes "wl_compositor"
-        compositor = (struct wl_compositor *)               // returns void* — wrong cast compiles, crashes at runtime
-                     wl_registry_bind(reg, name,
-                                      &wl_compositor_interface,
-                                      1);                   // version hardcoded — using `ver` requires extra tracking
+    if (strcmp(iface, wl_compositor_interface.name) == 0)  // manual string match
+        compositor = (struct wl_compositor *)              // void* — wrong cast compiles, crashes
+                     wl_registry_bind(reg, name, &wl_compositor_interface, 1);  // version hardcoded
     else if (strcmp(iface, wl_seat_interface.name) == 0)
         seat = (struct wl_seat *)
                wl_registry_bind(reg, name, &wl_seat_interface, 1);
 }
 
-// wl_registry fires two events — both need a slot, NULL for ones you skip
+// separate static struct required for every listener
 static const struct wl_registry_listener registry_listener = {
-    .global        = registry_global,
-    .global_remove = NULL,
+    .global = registry_global,
 };
 
-wl_registry_add_listener(registry, &registry_listener, NULL);  // last arg is the void* userdata
+wl_registry_add_listener(registry, &registry_listener, NULL);  // last arg: void* userdata
 wl_display_roundtrip(display);
 ```
 
-**kamiwayland** — `try_bind<T>` matches on `T::interface_name`, returns `unique_ptr<T>`, caps the version at
-`min(ver, T::interface_version)`, and takes no userdata:
+**kamiwayland** — `try_bind<T>` matches on `T::interface_name`, writes the result into a `unique_ptr<T>` out
+parameter, caps the bound version at the minimum of the compositor-advertised and client-maximum versions, and takes
+no userdata:
 
 ```cpp
 std::unique_ptr<wl::Compositor> compositor;
@@ -209,11 +207,9 @@ static void seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
         app->keyboard = wl_seat_get_keyboard(seat);
 }
 
-// wl_seat fires two events: capabilities and name.
-// Both slots must exist — NULL for the ones you skip.
+// separate static struct required for every listener
 static const struct wl_seat_listener seat_listener = {
     .capabilities = seat_capabilities,
-    .name         = NULL,
 };
 
 wl_seat_add_listener(seat, &seat_listener, app);  // app is the void* userdata
@@ -269,8 +265,8 @@ if (auto r = display.roundtrip(); !r) { /* r.error() */ }
 
 ### RAII and version safety
 
-Each object's destructor sends the protocol destroy request automatically. `try_bind<T>` and `bind<T>` cap the
-negotiated version at `min(server_version, T::interface_version)`. Requests with a `since` attribute check the
+Each object's destructor sends the protocol destroy request automatically. `try_bind<T>` caps the bound version at
+the minimum of the compositor-advertised and client-maximum versions. Requests with a `since` attribute check the
 negotiated version at the call site and abort with a diagnostic rather than sending an invalid request the compositor
 will reject with a fatal error.
 
