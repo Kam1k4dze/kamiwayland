@@ -23,8 +23,8 @@ cmake --build build --parallel
 
 ## Examples
 
-|                   |                                                                                                                  |
-|-------------------|------------------------------------------------------------------------------------------------------------------|
-| `01_list_globals` | Connect, enumerate every compositor global, print interface name and version.                                    |
-| `02_shm_window`   | SHM buffer, `xdg_toplevel` window, configure/ack handshake, resize, server-side decorations, event loop.         |
-| `03_bouncy_box`   | Double-buffered SHM (shared pool, two slots), frame callbacks, keyboard input, pointer motion and button events. |
+| Example                               | Description                                                                                                      |
+|---------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| [`01_list_globals`](01_list_globals/) | Connect, enumerate every compositor global, print interface name and version.                                    |
+| [`02_shm_window`](02_shm_window/)     | SHM buffer, `xdg_toplevel` window, configure/ack handshake, resize, server-side decorations, event loop.         |
+| [`03_bouncy_box`](03_bouncy_box/)     | Double-buffered SHM (shared pool, two slots), frame callbacks, keyboard input, pointer motion and button events. |

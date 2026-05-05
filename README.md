@@ -144,11 +144,7 @@ A single `recvmsg` can deliver multiple messages. The inner drain loop is necess
 
 ## Examples
 
-| Example                                        | Description                                                                                                      |
-|------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| [`01_list_globals`](examples/01_list_globals/) | Connect, enumerate every compositor global, print interface name and version.                                    |
-| [`02_shm_window`](examples/02_shm_window/)     | SHM buffer, `xdg_toplevel` window, configure/ack handshake, resize, server-side decorations, event loop.         |
-| [`03_bouncy_box`](examples/03_bouncy_box/)     | Double-buffered SHM (shared pool, two slots), frame callbacks, keyboard input, pointer motion and button events. |
+See [examples/README.md](examples/README.md).
 
 ---
 
