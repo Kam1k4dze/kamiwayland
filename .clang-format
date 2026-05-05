@@ -1,0 +1,48 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+AccessModifierOffset: -4
+NamespaceIndentation: None
+IndentCaseLabels: true
+ContinuationIndentWidth: 4
+
+# Line length
+ColumnLimit: 140
+
+# Braces
+BreakBeforeBraces: Attach
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: false
+
+# Alignment
+AlignAfterOpenBracket: true
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 0
+
+# Pointers and references
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Constructors
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: CurrentLine
+
+# Templates
+SpaceAfterTemplateKeyword: false
+
+# Includes / modules
+SortIncludes: Never
+IncludeBlocks: Preserve
