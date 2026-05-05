@@ -144,7 +144,7 @@ A single `recvmsg` can deliver multiple messages. The inner drain loop is necess
 
 ## Examples
 
-See [examples/README.md](examples/README.md).
+See [examples/](examples/).
 
 ---
 
