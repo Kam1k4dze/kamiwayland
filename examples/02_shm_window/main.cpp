@@ -35,8 +35,7 @@ struct App {
 
     bool running = true;
     bool configured = false;
-    bool buf_busy = false;     // compositor holds the buffer, don't destroy
-    bool needs_redraw = false; // resize pending until buf_busy clears
+    bool buf_busy = false; // compositor holds the buffer, don't destroy
 };
 
 static void create_buffer(App& app);
@@ -139,7 +138,6 @@ int main() {
         } else if (size_changed) {
             // Resize immediately - waiting for buf_busy to clear can deadlock against the compositor.
             app.buf_busy = false;
-            app.needs_redraw = false;
             app.width = app.nwidth;
             app.height = app.nheight;
             create_buffer(app);
@@ -152,15 +150,6 @@ int main() {
     struct pollfd pfd{display.fd(), POLLIN, 0};
 
     while (app.running) {
-        // Apply pending resize once the compositor released the previous buffer
-        if (app.needs_redraw && !app.buf_busy) {
-            app.needs_redraw = false;
-            app.width = app.nwidth;
-            app.height = app.nheight;
-            create_buffer(app);
-            do_draw(app);
-        }
-
         // Drain already-buffered messages before sleeping on the socket
         while (display.has_buffered()) {
             if (auto r = display.dispatch_once(); !r) {
