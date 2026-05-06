@@ -137,15 +137,13 @@ int main() {
             app.configured = true;
             do_draw(app);
         } else if (size_changed) {
-            if (!app.buf_busy) {
-                app.width = app.nwidth;
-                app.height = app.nheight;
-                create_buffer(app);
-                do_draw(app);
-            } else {
-                // compositor still holds the buffer - defer until release
-                app.needs_redraw = true;
-            }
+            // Resize immediately - waiting for buf_busy to clear can deadlock against the compositor.
+            app.buf_busy = false;
+            app.needs_redraw = false;
+            app.width = app.nwidth;
+            app.height = app.nheight;
+            create_buffer(app);
+            do_draw(app);
         }
     };
 

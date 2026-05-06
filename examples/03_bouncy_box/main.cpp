@@ -7,6 +7,7 @@
 import kamiwayland;
 import wl;
 import xdg;
+import xdg_decoration;
 import std;
 
 using std::int32_t;
@@ -25,16 +26,18 @@ static constexpr float    BASE_SPEED = 600.0f;
 static constexpr float    KICK = BASE_SPEED * 2.0f;
 
 struct App {
-    std::unique_ptr<wl::Compositor> compositor;
-    std::unique_ptr<wl::Shm>        shm;
-    std::unique_ptr<xdg::WmBase>    wm_base;
-    std::unique_ptr<wl::Seat>       seat; // input device group (keyboard, pointer, touch)
+    std::unique_ptr<wl::Compositor>                      compositor;
+    std::unique_ptr<wl::Shm>                             shm;
+    std::unique_ptr<xdg::WmBase>                         wm_base;
+    std::unique_ptr<wl::Seat>                            seat; // input device group (keyboard, pointer, touch)
+    std::unique_ptr<xdg_decoration::DecorationManagerV1> deco_mgr;
 
-    std::unique_ptr<wl::Surface>   surface;
-    std::unique_ptr<xdg::Surface>  xdg_surface;
-    std::unique_ptr<xdg::Toplevel> toplevel;
-    std::unique_ptr<wl::Keyboard>  keyboard;
-    std::unique_ptr<wl::Pointer>   pointer;
+    std::unique_ptr<wl::Surface>                          surface;
+    std::unique_ptr<xdg::Surface>                         xdg_surface;
+    std::unique_ptr<xdg::Toplevel>                        toplevel;
+    std::unique_ptr<xdg_decoration::ToplevelDecorationV1> decoration;
+    std::unique_ptr<wl::Keyboard>                         keyboard;
+    std::unique_ptr<wl::Pointer>                          pointer;
 
     // Double-buffered SHM: one pool, two buffer objects at different offsets.
     std::unique_ptr<wl::ShmPool> pool;
@@ -218,8 +221,8 @@ static void on_frame(App& app, uint32_t ms) {
     // request_frame will overwrite app.frame_cb; move first so the lambda we're executing inside stays alive
     auto old_cb = std::move(app.frame_cb);
 
-    // Resize: recreate the shared pool only once both slots are free
-    if ((app.nwidth != app.width || app.nheight != app.height) && !app.slots[0].busy && !app.slots[1].busy) {
+    // Resize immediately - waiting for slot release can deadlock against the compositor.
+    if (app.nwidth != app.width || app.nheight != app.height) {
         app.width = app.nwidth;
         app.height = app.nheight;
         create_buffers(app);
@@ -263,6 +266,7 @@ int main() {
     registry->on_global = [&](wl::Registry& reg, uint32_t name, std::string_view iface, uint32_t ver) {
         if (reg.try_bind<wl::Compositor>(iface, name, ver, app.compositor)) return;
         if (reg.try_bind<wl::Shm>(iface, name, ver, app.shm)) return;
+        if (reg.try_bind<xdg_decoration::DecorationManagerV1>(iface, name, ver, app.deco_mgr)) return;
         if (reg.try_bind<xdg::WmBase>(iface, name, ver, app.wm_base)) {
             app.wm_base->on_ping = [](xdg::WmBase& wm, uint32_t serial) { wm.pong(serial); };
             return;
@@ -333,6 +337,11 @@ int main() {
     app.toplevel->set_title("bouncy_box");
     app.toplevel->set_app_id("kamiwayland.bouncy_box");
     app.toplevel->set_min_size(200, 150);
+
+    if (app.deco_mgr) {
+        app.decoration = app.deco_mgr->get_toplevel_decoration(*app.toplevel);
+        app.decoration->set_mode(xdg_decoration::ToplevelDecorationV1Mode::server_side);
+    }
 
     app.toplevel->on_close = [&](xdg::Toplevel&) { app.running = false; };
     app.toplevel->on_configure = [&](xdg::Toplevel&, int32_t w, int32_t h, std::span<const std::byte>) {

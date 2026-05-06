@@ -1,6 +1,7 @@
 kscanner_add_protocols(bouncy_box_protos
-    wl  ${PROTOCOLS_DIR}/wayland.xml
-    xdg ${PROTOCOLS_DIR}/xdg-shell.xml
+    wl             ${PROTOCOLS_DIR}/wayland.xml
+    xdg            ${PROTOCOLS_DIR}/xdg-shell.xml
+    xdg_decoration ${PROTOCOLS_DIR}/xdg-decoration-unstable-v1.xml
 )
 
 add_executable(bouncy_box main.cpp)
