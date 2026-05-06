@@ -86,7 +86,7 @@ function(kscanner_add_protocols target_name)
 
     add_custom_command(
             OUTPUT ${outputs}
-            COMMAND kscanner ${cmd_args} -o ${gen}
+            COMMAND $<TARGET_FILE:kscanner> ${cmd_args} -o ${gen}
             DEPENDS kscanner ${inputs}
             VERBATIM
     )
@@ -98,4 +98,3 @@ function(kscanner_add_protocols target_name)
     set_target_properties(${target_name} PROPERTIES CXX_MODULE_STD ON)
     target_link_libraries(${target_name} PUBLIC kamiwayland)
 endfunction()
-
